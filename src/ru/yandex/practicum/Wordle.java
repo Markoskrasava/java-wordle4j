@@ -1,5 +1,10 @@
 package ru.yandex.practicum;
 
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 /*
 в главном классе нам нужно:
     создать лог-файл (он должен передаваться во все классы)
@@ -12,7 +17,18 @@ package ru.yandex.practicum;
 public class Wordle {
 
     public static void main(String[] args) {
-
+        PrintWriter logger = null;
+        try {
+            logger = new PrintWriter(new FileWriter("game.log", true));
+            WordleDictionaryLoader loader = new WordleDictionaryLoader(logger);
+            List<String> words = loader.readingFile("words_ru.txt");
+            WordleDictionary dictionary = new WordleDictionary(words, logger);
+            WordleGame game = new WordleGame(dictionary, logger);
+            game.GameCreator();
+        } catch (Throwable t) {
+            logger.println(t.getMessage());
+        } finally {
+            logger.close();
+        }
     }
-
 }
