@@ -2,8 +2,6 @@ package ru.yandex.practicum;
 
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 /*
 в главном классе нам нужно:
@@ -14,6 +12,7 @@ import java.util.List;
     вызвать игровой метод в котором в цикле опрашивать пользователя и передавать информацию в игру
     вывести состояние игры и конечный результат
  */
+
 public class Wordle {
 
     public static void main(String[] args) {
