@@ -19,12 +19,12 @@ public class Wordle {
     public static void main(String[] args) {
         PrintWriter logger = null;
         try {
-            logger = new PrintWriter(new FileWriter("game.log", true));
+            logger = new PrintWriter(new FileWriter("game.log", false));
             WordleDictionaryLoader loader = new WordleDictionaryLoader(logger);
             List<String> words = loader.readingFile("words_ru.txt");
             WordleDictionary dictionary = new WordleDictionary(words, logger);
             WordleGame game = new WordleGame(dictionary, logger);
-            game.GameCreator();
+            game.gameCreator();
         } catch (Throwable t) {
             logger.println(t.getMessage());
         } finally {

@@ -151,7 +151,7 @@ public class WordleGame {
         return true;
     }
 
-    public void GameCreator() {
+    public void gameCreator() {
             Map<String, String> letters = new LinkedHashMap<>();
 
             Scanner scanner = new Scanner(System.in);
