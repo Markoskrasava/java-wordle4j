@@ -15,8 +15,6 @@ public class WordleDictionary {
 
     private PrintWriter logger;
 
-    private final static int MAX_LENGTH = 5;
-
     public WordleDictionary(List<String> words, PrintWriter logger) {
         this.words = words;
         this.logger = logger;

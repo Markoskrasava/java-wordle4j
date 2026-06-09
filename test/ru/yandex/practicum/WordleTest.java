@@ -33,7 +33,7 @@ class WordleTest {
         List<String> words = loader.readingFile("words_ru.txt");
         assertTrue(!words.isEmpty());
         for (String word : words) {
-            assertEquals(5, word.length());
+            assertEquals(game.MAX_LENGTH, word.length());
         }
 
     }
@@ -58,7 +58,7 @@ class WordleTest {
         String hint = game.getHintFromCollections();
         assertTrue(!hint.isEmpty());
         assertEquals(hint, hint.toLowerCase());
-        assertEquals(5, hint.length());
+        assertEquals(game.MAX_LENGTH, hint.length());
     }
 
     @Test
