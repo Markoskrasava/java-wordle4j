@@ -1,9 +1,7 @@
 package ru.yandex.practicum;
 
 import java.io.PrintWriter;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 
 /*
 в этом классе хранится словарь и состояние игры
@@ -19,13 +17,15 @@ import java.util.Scanner;
  */
 public class WordleGame {
 
+    public static final int MAX_STEPS = 6;
+    public static final int MAX_LENGTH = 5;
     private String answer;
-
     private int steps;
-
     private WordleDictionary dictionary;
-
     private PrintWriter logger;
+    private Set<Character> usableLetters;
+    private Set<Character> unusableLetters;
+    private Map<Integer, Character> rightLetters;
 
     public WordleGame(WordleDictionary dictionary, PrintWriter logger) {
         if (dictionary == null) {
@@ -38,11 +38,68 @@ public class WordleGame {
         this.steps = 0;
         this.dictionary = dictionary;
         this.logger = logger;
+        this.usableLetters = new HashSet<>();
+        this.unusableLetters = new HashSet<>();
+        this.rightLetters = new LinkedHashMap<>();
 
         if (this.answer == null) {
             throw new RuntimeException("Не получено слово из словаря");
         }
         logger.println("Игра создана, загадано: " + this.answer);
+    }
+
+    public String getAnswer() {
+        return answer;
+    }
+
+    public void sortUsedLettersForCollections(String word, String result) {
+        for (int i = 0; i < answer.length(); i++) {
+            char wordChar = word.charAt(i);
+            char resultChar = result.charAt(i);
+            if (resultChar == '+') {
+                usableLetters.add(wordChar);
+                rightLetters.put(i, wordChar);
+            } else if (resultChar == '^') {
+                usableLetters.add(wordChar);
+            } else if (resultChar == '-') {
+                if (!usableLetters.contains(wordChar)) {
+                    unusableLetters.add(wordChar);
+                }
+            }
+        }
+    }
+
+    public String getHintFromCollections() {
+        for (String potentialWord : dictionary.getList()) {
+            if (isWordMatches(potentialWord)) {
+                return potentialWord;
+            }
+        }
+        return "Нет подходящих слов";
+    }
+
+    private boolean isWordMatches(String potentialWord) {
+        for (Map.Entry<Integer, Character> entry : rightLetters.entrySet()) {
+            int numberOfLetter = entry.getKey();
+            int letter = entry.getValue();
+            if (potentialWord.charAt(numberOfLetter) != letter) {
+                return false;
+            }
+        }
+
+        for (char letter : usableLetters) {
+            if (potentialWord.indexOf(letter) == -1) {
+                return false;
+            }
+        }
+
+        for (char letter : unusableLetters) {
+            if (potentialWord.indexOf(letter) != -1) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public boolean isRightWord(String word) {
@@ -100,103 +157,8 @@ public class WordleGame {
     }
 
     public String correctingWord(String word) {
-        word = word.toLowerCase();
+        word = word.trim().toLowerCase();
         word = word.replace('ё', 'е');
         return word;
-    }
-
-    public String helpToPlayer(Map<String, String> letters) {
-        for (String potentialWord : dictionary.getList()) {
-            if (potentialWord.length() == 5 && !(letters.containsKey(potentialWord))) {
-                for (Map.Entry<String, String> entry : letters.entrySet()) {
-                    String usedWord = entry.getKey();
-                    String encryptedUsedWord = entry.getValue();
-                    if (isWordMatches(usedWord, potentialWord, encryptedUsedWord)) {
-                        return potentialWord;
-                    }
-
-                }
-            }
-        }
-        return "Нет подходящих слов";
-    }
-
-    private boolean isWordMatches(String usedWord, String potentialWord, String encryptedUsedWord) {
-        if (!potentialWord.equals(usedWord)) {
-            for (int i = 0; i < usedWord.length(); i++) {
-                if (encryptedUsedWord.charAt(i) == '+') {
-                    if (potentialWord.charAt(i) != usedWord.charAt(i)) {
-                        return false;
-                    }
-
-                }
-
-                if (encryptedUsedWord.charAt(i) == '^') {
-                    if (potentialWord.charAt(i) == usedWord.charAt(i)) {
-                        return false;
-                    }
-                    if (!(potentialWord.indexOf(usedWord.charAt(i)) != -1)) {
-                        return false;
-                    }
-                }
-
-                if (encryptedUsedWord.charAt(i) == '-') {
-                    if (potentialWord.indexOf(usedWord.charAt(i)) != -1) {
-                        return false;
-                    }
-                }
-
-            }
-        }
-        return true;
-    }
-
-    public void gameCreator() {
-            Map<String, String> letters = new LinkedHashMap<>();
-
-            Scanner scanner = new Scanner(System.in);
-            int count = 0;
-            while (true) {
-                System.out.println("Введите слово");
-                String word = scanner.nextLine();
-                word = correctingWord(word);
-                try {
-                    if (word.isBlank()) {
-                        logger.println("Игрок запросил подсказку компьютера");
-                        String potentialWord = helpToPlayer(letters);
-                        System.out.println("Возможно подойдёт " + potentialWord);
-                    }
-                    if (isWordCorrect(word)) {
-                        if (isRightWord(word)) {
-                            System.out.println("Это правильное слово!");
-                            logger.println("Игрок угадал слово!");
-                            break;
-                        } else {
-                            System.out.println(writeEncryptedAnswer(word));
-                        }
-                        steps++;
-                        count++;
-                        String encryptedAnswer = writeEncryptedAnswer(word);
-                        letters.put(word, encryptedAnswer);
-                        System.out.println("Количество попыток: " + count);
-                        logger.println("Количество попыток игрока: " + count);
-                    } else {
-                        System.out.println("Введите другое слово");
-
-                    }
-                    if (steps == 6) {
-                        System.out.println("Все попытки исчерпаны, загаданное слово: " + answer);
-                        logger.println("Все попытки игрока исчерпаны, загаданное слово: " + answer);
-                        break;
-                    }
-                } catch (WordNotFoundInDictionary e) {
-                    logger.println(e.getMessage());
-                    System.out.println("Этого слова нет в словаре");
-                } catch (IllegalLengthOfWord e) {
-                    logger.println(e.getMessage());
-                    System.out.println("Неправильная длина слова");
-                }
-            }
-            System.out.println(letters);
     }
 }

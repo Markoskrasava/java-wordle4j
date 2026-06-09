@@ -14,10 +14,14 @@ import java.util.List;
  */
 public class WordleDictionaryLoader {
 
-    private PrintWriter logger;
+    private static PrintWriter logger;
 
     public WordleDictionaryLoader(PrintWriter logger) {
         this.logger = logger;
+    }
+
+    public WordleDictionaryLoader() {
+
     }
 
     public static List<String> readingFile(String filename) {
@@ -25,10 +29,14 @@ public class WordleDictionaryLoader {
         try (BufferedReader reader = new BufferedReader(new FileReader(filename, StandardCharsets.UTF_8))) {
             while (reader.ready()) {
                 String word = reader.readLine();
-                words.add(word);
+                if (word.length() == 5) {
+                    word = word.replace('ё', 'е').toLowerCase();
+                    words.add(word);
+                }
             }
         } catch (Exception e) {
-            System.out.println("Ошибка!");
+            logger.println("Ошибка! " + e.getMessage());
+            e.printStackTrace(logger);
         }
         return words;
     }

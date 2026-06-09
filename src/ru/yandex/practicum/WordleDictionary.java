@@ -15,6 +15,8 @@ public class WordleDictionary {
 
     private PrintWriter logger;
 
+    private final static int MAX_LENGTH = 5;
+
     public WordleDictionary(List<String> words, PrintWriter logger) {
         this.words = words;
         this.logger = logger;
@@ -31,7 +33,7 @@ public class WordleDictionary {
     public String getRandomWord() {
         Random rnd = new Random();
         int index = rnd.nextInt(getSizeOfList(words));
-        while (words.get(index).length() != 5) {
+        while (words.get(index).length() != WordleGame.MAX_LENGTH) {
             index = rnd.nextInt(getSizeOfList(words));
         }
         return words.get(index);
