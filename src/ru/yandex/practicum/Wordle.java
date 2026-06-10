@@ -1,7 +1,7 @@
 package ru.yandex.practicum;
 
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +18,8 @@ import java.util.Scanner;
 
 public class Wordle {
 
-    public static void main(String[] args) {
-        try (PrintWriter logger = new PrintWriter(new FileWriter("game.log", false))) {
+    public static void main(String[] args) throws IOException {
+        try (PrintWriter logger = new PrintWriter(new OutputStreamWriter(new FileOutputStream("game.log", false), StandardCharsets.UTF_8))) {
             WordleDictionaryLoader loader = new WordleDictionaryLoader(logger);
             List<String> words = loader.readingFile("words_ru.txt");
             WordleDictionary dictionary = new WordleDictionary(words, logger);
@@ -27,7 +27,8 @@ public class Wordle {
             gameCreator(game, logger, dictionary);
             logger.println("Игра завершена");
         } catch (Throwable t) {
-            System.out.println("Критическая ошибка: " + t.getMessage());
+            PrintWriter log = new PrintWriter(new OutputStreamWriter(new FileOutputStream("game.log", true), StandardCharsets.UTF_8));
+            log.println("Критичекая ошибка " + t.getMessage());
         }
     }
 
